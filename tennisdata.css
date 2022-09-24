@@ -1,0 +1,16 @@
+.dataTables_wrapper {
+    margin-bottom: 2em;
+}
+
+table.dataTable td, table.dataTable thead th {
+    text-align: center;
+}
+
+table.dataTable td:first-child
+, table.dataTable thead th:first-child {
+    text-align: left;
+}
+
+body > .container > .row {
+    margin-top: 2em;
+}
