@@ -25,8 +25,12 @@ function getValueOrDefaultTwice(map, key, subkey, defaultVal = "") {
     return defaultVal;
 }
 
+function minTwoDigits(s) {
+    return s.length > 1 ? s : "0" + s
+}
+
 function parseUSDate(dateString) {
-    const re = /(\d{2})\/(\d{2})\/(\d{4})/;
+    const re = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
     let match = dateString.match(re);
     dateString = match[3] + "-" + match[1] + "-" + match[2];
     let dateVal = Date.parse(dateString);
@@ -40,7 +44,10 @@ Papa.parsePromise = function (file) {
 };
 
 $(function(){
-    document.getElementById("cutoffDate").valueAsDate = new Date();
+    //Set cutoff to next Tues
+    let d = new Date();
+    d.setDate(d.getDate() + (2 + 7 - d.getDay()) % 7);  
+    document.getElementById("cutoffDate").valueAsDate = d;
 
     document.getElementById("startDate").addEventListener('change', getData);
     document.getElementById("cutoffDate").addEventListener('change', getData);
@@ -148,6 +155,7 @@ function getData() {
             let data = results.data;
 
             let screwCounts = {};
+            let screwDates = {};
             let attemptCounts = {};
 
             for (let r of data.slice(1)) {
@@ -157,7 +165,7 @@ function getData() {
             }
 
             for (let colInd = 3; colInd < data[0].length; colInd++) {
-                const re = /(\d{2})\/(\d{2})\/(\d{4})/;
+                const re = /(\d{1,2})\/(\d{1,2})\/(\d{4})/;
                 let date = data[0][colInd].match(re)[0];
                 let dateVal = parseUSDate(date);
 
@@ -171,8 +179,10 @@ function getData() {
                     if (status === "yes" || status === "maybe") {
                         setOrInc(attemptCounts, name);
 
-                        if (date in dateMap && !(name in dateMap[date])) {
+                        if (date in dateMap && !(name in dateMap[date]) && !getValueOrDefaultTwice(screwDates, date, name) ) {
                             setOrInc(screwCounts, name);
+                            verifyKeyExists(screwDates, date);
+                            verifyKeyExists(screwDates[date], name, true);
                         }
                     }
                 }
