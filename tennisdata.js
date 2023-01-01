@@ -57,8 +57,9 @@ $(function(){
         { title: "Name" },
         { title: "Nights Left Out" },
         { title: "Last Played" },
+        { title: "Last Screwed" },
         { title: "Times Available" },
-        { title: "Multiplay Nights" },
+        { title: "Times Played" },
     ];
     $("#playerHistoryTable").DataTable({
         columns: pcols,
@@ -104,8 +105,8 @@ function getData() {
                 for (let p of r.slice(2)) {
                     verifyKeyExists(playerStats, p);
                     playerStats[p]["lastPlayed"] = date;
-                    if (p in dateMap[date])
-                        setOrInc(playerStats[p], "multiPlays");
+                    
+                    setOrInc(playerStats[p], "plays");
 
                     dateMap[date][p] = true;
 
@@ -181,6 +182,7 @@ function getData() {
 
                         if (date in dateMap && !(name in dateMap[date]) && !getValueOrDefaultTwice(screwDates, date, name) ) {
                             setOrInc(screwCounts, name);
+                            playerStats[name]['lastScrewed'] = date;
                             verifyKeyExists(screwDates, date);
                             verifyKeyExists(screwDates[date], name, true);
                         }
@@ -194,9 +196,10 @@ function getData() {
                 line.push(p);
                 line.push(screwCounts[p]);
                 line.push(getValueOrDefaultTwice(playerStats, p, "lastPlayed"));
+                line.push(getValueOrDefaultTwice(playerStats, p, "lastScrewed"));
                 line.push(attemptCounts[p]);
                 line.push(
-                    getValueOrDefaultTwice(playerStats, p, "multiPlays", 0)
+                    getValueOrDefaultTwice(playerStats, p, "plays", 0)
                 );
                 playerTable.push(line);
             }
